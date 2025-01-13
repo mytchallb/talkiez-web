@@ -26,6 +26,12 @@
           required
         />
         <input 
+          type="text" 
+          v-model="phone" 
+          placeholder="Phone Number"
+          class="p-3 border border-gray-300 rounded-md text-base"
+        />
+        <input 
           type="password" 
           v-model="password" 
           placeholder="New Password (optional)"
@@ -67,13 +73,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { mainStore } from '@/stores/store';
-import { auth } from '@/lib/methods';
+import { auth, user } from '@/lib/methods';
 
 const store = mainStore();
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
+const phone = ref('');
 const error = ref('');
 const success = ref('');
 
@@ -83,13 +90,18 @@ onMounted(async () => {
   if (user) {
     name.value = user.name;
     email.value = user.email;
+    phone.value = user.phone;
   }
 });
 
 async function handleUpdate() {
   try {
-    // Add your update profile logic here
-    // Example: await store.updateProfile({ name: name.value, email: email.value, password: password.value });
+    await user.updateProfile({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      phone: phone.value
+    });
     success.value = 'Profile updated successfully';
     error.value = '';
   } catch (err) {
@@ -106,9 +118,7 @@ const leaveProfileScreen = () => {
 async function handleDelete() {
   if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
     try {
-      // Add your delete account logic here
-      // Example: await store.deleteAccount();
-      await auth.deleteAccount();
+      await user.deleteAccount();
     } catch (err) {
       console.error('Delete error:', err);
       error.value = 'Failed to delete account';

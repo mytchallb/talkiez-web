@@ -125,6 +125,21 @@ export const transmissions = {
   }
 }
 
+export const user = {
+  async updateProfile(profile) {
+    const response = await apiPost('/user/update/', profile);
+    mainStore().user = response;
+    return response;
+  },
+  async deleteAccount() {
+    const response = await apiPost('/user/delete/');
+    mainStore().user = null;
+    mainStore().token = '';
+    mainStore().screen = 'login';
+    return response;
+  }
+}
+
 export const getLoggedInUserDetails = async () => {
   const response = await apiGet('/user/');
 

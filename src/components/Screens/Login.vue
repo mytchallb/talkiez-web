@@ -52,27 +52,52 @@
 <script setup>
 import { ref } from 'vue';
 import { mainStore } from '../../stores/store';
-import { useRouter } from 'vue-router';
 import { auth } from '../../lib/methods';
 
 const store = mainStore();
-const router = useRouter();
 
 const isLogin = ref(true);
 const email = ref('mytchall.bransgrove@gmail.com');
 const password = ref('admin');
 const name = ref('');
 const error = ref('');
-async function handleSubmit() {
+
+async function handleLogin() {
   try {
-    const result = isLogin.value
-      ? await auth.login(email.value, password.value)
-      : await auth.register(name.value, email.value, password.value);
-      error.value = (result.success) ? '' : result.error;
-    
+    const result = await auth.login(email.value, password.value);
+    error.value = result.success ? '' : result.error;
+    if (result.success) {
+      store.screen = 'main';
+    }
   } catch (err) {
-    console.error('Auth error:', err);
+    console.error('Login error:', err);
+    if (err.status === 401) {
+      error.value = 'Invalid email or password';
+    } else {
+      error.value = 'An unexpected error occurred';
+    }
+  }
+}
+
+async function handleRegister() {
+  try {
+    const result = await auth.register(name.value, email.value, password.value);
+    error.value = result.success ? '' : result.error;
+    if (result.success) {
+      isLogin.value = true; // Switch to login view after successful registration
+      await handleLogin(); // Automatically log in after registration
+    }
+  } catch (err) {
+    console.error('Registration error:', err);
     error.value = 'An unexpected error occurred';
+  }
+}
+
+async function handleSubmit() {
+  if (isLogin.value) {
+    await handleLogin();
+  } else {
+    await handleRegister();
   }
 }
 </script>
