@@ -89,9 +89,39 @@ export const transmissions = {
   async getTransmissions() {
     console.log('Getting transmissions');
     const response = await apiGet('/transmissions/');
-    console.log(response);
-    mainStore().transmissions = response;
-    // return response;
+    console.log(response)
+    mainStore().transmissions = response.transmissions;
+  },
+  async playTransmission(transmission) {
+    try {
+      console.log('Playing transmission', transmission);
+
+      const audioBlob = await apiPost(
+        `/transmissions/listen/`, 
+        { transmission_id: transmission.id },
+        {},
+        'blob'
+      );
+      
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      // Return a promise that resolves when audio finishes playing
+      return new Promise((resolve, reject) => {
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl); // Clean up the blob URL
+          resolve();
+        };
+        audio.onerror = (error) => {
+          URL.revokeObjectURL(audioUrl);
+          reject(error);
+        };
+        audio.play().catch(reject);
+      });
+    } catch (error) {
+      console.error('Error playing transmission:', error);
+      throw error;
+    }
   }
 }
 

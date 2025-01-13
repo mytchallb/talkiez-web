@@ -34,7 +34,7 @@ export const apiGet = async (endpoint, params = {}, headers = {}) => {
 
 
 
-export const apiPost = async (endpoint, data = {}, headers = {}) => {
+export const apiPost = async (endpoint, data = {}, headers = {}, responseType = 'json') => {
   // Don't stringify if data is FormData
   const body = data instanceof FormData ? data : JSON.stringify(data);
   
@@ -57,29 +57,43 @@ export const apiPost = async (endpoint, data = {}, headers = {}) => {
     },
     body
   });
-  
-  let parsedResponse;
-  try {
-    // First, try to parse the JSON response
-    parsedResponse = JSON.parse(await response.text());
-  } catch (e) {
-    // Handle JSON parsing errors
-    console.error(`[API] ${endpoint} | Invalid JSON response:`, e);
-    throw new Error('Invalid response format from server');
-  }
 
-  // If response is not ok, format and throw the error
+  // If response is not ok, handle the error
   if (!response.ok) {
+    const errorText = await response.text();
+    let parsedError;
+    try {
+      parsedError = JSON.parse(errorText);
+    } catch (e) {
+      parsedError = { message: errorText };
+    }
+    
     const error = {
       status: response.status,
-      data: parsedResponse,
-      message: parsedResponse.message || 'API request failed',
-      errors: parsedResponse.errors || {}
+      data: parsedError,
+      message: parsedError.message || 'API request failed',
+      errors: parsedError.errors || {}
     };
     
     console.error(`[API] ${endpoint} | Request failed:`, error);
     throw error;
   }
 
-  return parsedResponse;
+  // Handle different response types
+  if (responseType === 'blob') {
+    return response.blob();
+  }
+  
+  if (responseType === 'arrayBuffer') {
+    return response.arrayBuffer();
+  }
+
+  // Default JSON handling
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error(`[API] ${endpoint} | Invalid JSON response:`, e);
+    throw new Error('Invalid response format from server');
+  }
 }

@@ -1,7 +1,8 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
   
-export const mainStore = defineStore('main', () => {
+export const mainStore = defineStore('main', {
+  state: () => ({
   /*
   user: {
     "id": 4,
@@ -18,15 +19,14 @@ export const mainStore = defineStore('main', () => {
     name: string
   }
   */
-  const screen = ref('login');
-  const token = ref('');
-  const user = ref(null);
-  const friends = ref([]);
-  const selectedContact = ref(null);
-  const modals = ref({
+  screen: ref('login'),
+  token: ref(''),
+  user: ref(null),
+  friends: ref([]),
+  selectedContact: ref(null),
+  modals: {
     addFriend: false
-  });
-  
-
-  return { token, user, friends, selectedContact, modals }
+  },
+  transmissions: ref([]),
+  })
 })
