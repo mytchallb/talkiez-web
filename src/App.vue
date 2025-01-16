@@ -1,5 +1,5 @@
 <template>
-  <main class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: `url(${bg})` }">
+  <main class="w-full h-full bg-cover bg-center bg-gray-dark">
     <Login v-if="!store.token || store.screen === 'login'" />
     <Main v-else-if="store.screen === 'main'" />
     <Profile v-else-if="store.screen === 'profile'" />

@@ -1,11 +1,11 @@
 <template>
 <!-- Recording Button -->
 <div 
-      class="w-52 h-52 rounded-full flex items-center justify-center text-white cursor-pointer select-none m-auto"
+      class="w-52 h-52 rounded-full flex items-center justify-center text-black cursor-pointer select-none m-auto"
       :class="{
       'bg-red-500': isRecording,
-      'bg-orange-500': !isRecording && store.selectedContact,
-      'bg-gray-400 cursor-not-allowed': !store.selectedContact
+      'bg-primary': !isRecording && store.selectedContact,
+      'bg-primary cursor-not-allowed': !store.selectedContact
     }"
     @mousedown="startRecording"
     >

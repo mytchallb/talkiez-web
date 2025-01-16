@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  @apply p-3 border border-[#2d2d2d] bg-gray-dark text-white rounded-md text-base;
+}
+
+.btn {
+  @apply w-full py-3 mt-2 bg-primary font-bold hover:bg-primary-light rounded-md text-base cursor-pointer transition-colors;
+}

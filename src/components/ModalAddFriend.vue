@@ -10,8 +10,8 @@
         <input type="text" v-model="email" placeholder="Email Address" class="p-2 border border-gray-300 rounded-md" />
       </div>
       <div class="flex justify-end gap-4 mt-6">
-        <button @click="store.modals.addFriend = false" class="bg-gray-500 text-white px-4 py-2 rounded-md">Cancel</button>
-        <button @click="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Friend</button>
+        <button @click="store.modals.addFriend = false" class="bg-black text-white px-4 py-2 rounded-md">Cancel</button>
+        <button @click="addFriend" class="bg-blue text-white px-4 py-2 rounded-md">Add Friend</button>
       </div>
       <div v-if="errorMsg" class="mt-4">
         <p class="text-red-500">{{ errorMsg }}</p>

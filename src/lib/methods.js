@@ -34,10 +34,11 @@ export const auth = {
         return { success: true };
       }
       
-      if (response.errors) {
+      // Handle validation errors from the response
+      if (response.data?.errors) {
         return {
           success: false,
-          error: Object.values(response.errors).flat().join(', ')
+          error: Object.values(response.data.errors).flat().join(', ')
         };
       }
       
@@ -47,6 +48,13 @@ export const auth = {
       };
     } catch (error) {
       console.error('Registration error:', error);
+      // Handle validation errors from the error object
+      if (error.data?.errors) {
+        return {
+          success: false,
+          error: Object.values(error.data.errors).flat().join(', ')
+        };
+      }
       return { 
         success: false, 
         error: 'An unexpected error occurred' 
