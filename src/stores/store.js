@@ -1,32 +1,38 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-  
-export const mainStore = defineStore('main', {
+import { ref } from "vue"
+import { defineStore } from "pinia"
+
+export const mainStore = defineStore("main", {
   state: () => ({
-  /*
-  user: {
-    "id": 4,
-    "name": "Mytch",
-    "email": "mytchall.bransgrove@gmail.com",
-    "email_verified_at": null,
-    "created_at": "2025-01-03T02:37:44.000000Z",
-    "updated_at": "2025-01-03T02:55:20.000000Z",
-    "friends": "3",
-    "friend_requests": null
-  }
-  friends: {
-    id: number
-    name: string
-  }
-  */
-  screen: ref('login'),
-  token: ref(''),
-  user: ref(null),
-  friends: ref([]),
-  selectedContact: ref(null),
-  modals: {
-    addFriend: false
+    screen: ref("login"),
+    token: ref(""),
+    user: ref({
+      name: "Mytch",
+      phone_combined: "+1",
+      phone_prefix: "+1",
+      email: "mytchall.bransgrove@gmail.com",
+      password: "admin",
+      language: "en",
+    }),
+    tempUser: ref({
+      name: "Mytch",
+      phone_combined: "+1",
+      phone_prefix: "+1",
+      email: "mytchall.bransgrove@gmail.com",
+      password: "admin",
+      language: "en",
+    }),
+    api: "http://talkiez-api.test/api",
+    friends: ref([]),
+    selectedContact: ref(null),
+    modals: {
+      addFriend: false,
+    },
+    transmissions: ref([]),
+  }),
+  actions: {
+    setUserFromTempUser() {
+      this.user = this.tempUser
+    },
   },
-  transmissions: ref([]),
-  })
+  persist: true,
 })

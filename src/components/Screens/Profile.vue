@@ -18,22 +18,26 @@
       <form @submit.prevent="handleUpdate" class="flex flex-col space-y-4 relative">
         <div class="flex flex-col space-y-1">
           <label for="name" class="text-gray-superlight text-base">Name</label>
-          <input type="text" v-model="name" class="p-3 border border-gray-300 rounded-md text-base" required />
+          <input type="text" v-model="store.tempUser.name" required />
         </div>
+
+        <PhoneNumber />
 
         <div class="flex flex-col space-y-1">
           <label for="email" class="text-gray-superlight text-base">Email</label>
-          <input type="email" v-model="email" class="p-3 border border-gray-300 rounded-md text-base" required />
+          <input type="email" v-model="store.tempUser.email" required />
         </div>
 
-        <div class="flex flex-col space-y-1">
-          <label for="phone" class="text-gray-superlight text-base">Phone Number</label>
-          <input type="text" v-model="phone" class="p-3 border border-gray-300 rounded-md text-base" />
-        </div>
+        <!-- <div class="flex flex-col space-y-1">
+          <label for="language" class="text-gray-superlight text-base">Language</label>
+          <select v-model="store.tempUser.language">
+            <option v-for="language in languages" :key="language.code" :value="language.code">{{ language.name }}</option>
+          </select>
+        </div> -->
 
         <div class="flex flex-col space-y-1">
           <label for="password" class="text-gray-superlight text-base">New Password (optional)</label>
-          <input type="password" v-model="password" class="p-3 border border-gray-300 rounded-md text-base" />
+          <input type="password" v-model="store.tempUser.password" class="p-3 border border-gray-300 rounded-md text-base" />
         </div>
 
         <button type="submit" class="btn">Save Changes</button>
@@ -52,48 +56,23 @@
 import { ref, onMounted } from "vue"
 import { mainStore } from "@/stores/store"
 import { user } from "@/lib/methods"
-
+import PhoneNumber from "@/components/PhoneNumber.vue"
+import { languages } from "@/lib/constants"
 const store = mainStore()
-
-const name = ref("")
-const email = ref("")
-const password = ref("")
-const phone = ref("")
 const error = ref("")
-const originalUser = ref(null)
 
-onMounted(async () => {
-  const user = store.user
-  if (user) {
-    name.value = user.name
-    email.value = user.email
-    phone.value = user.phone
-    originalUser.value = { ...user }
-  }
+onMounted(() => {
+  // store.tempUser = JSON.parse(JSON.stringify(store.user))
 })
 
 async function handleUpdate() {
-  const hasChanges =
-    name.value !== originalUser.value?.name || email.value !== originalUser.value?.email || phone.value !== originalUser.value?.phone || password.value !== ""
-
-  if (!hasChanges) {
-    console.log("No changes detected, closing profile screen")
-    leaveProfileScreen()
-    return
-  }
-
   try {
-    await user.updateProfile({
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      phone: phone.value,
-    })
-    error.value = ""
+    await user.updateProfile()
+    store.setUserFromTempUser()
     leaveProfileScreen()
   } catch (err) {
     console.error("Update error:", err)
-    error.value = "Failed to update profile"
+    error.value = Object.values(err.errors).flat().join(" ")
   }
 }
 

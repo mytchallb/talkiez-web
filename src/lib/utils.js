@@ -6,11 +6,10 @@ const getToken = () => {
   return store.token
 }
 
-export const API_URL = "http://talkiez-api.test/api"
-
 // add user.token as bearer auth header
 
 export const apiGet = async (endpoint, params = {}, headers = {}) => {
+  const API_URL = mainStore().api
   const urlParams = new URLSearchParams(params)
   const queryString = urlParams.toString()
   const url = `${API_URL}${endpoint}${queryString ? "?" + queryString : ""}`
@@ -33,6 +32,7 @@ export const apiGet = async (endpoint, params = {}, headers = {}) => {
 }
 
 export const apiPost = async (endpoint, data = {}, headers = {}, responseType = "json") => {
+  const API_URL = mainStore().api
   // Don't stringify if data is FormData
   const body = data instanceof FormData ? data : JSON.stringify(data)
 

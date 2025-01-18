@@ -1,187 +1,201 @@
-import { apiPost, apiGet } from './utils';
-import { mainStore } from '../stores/store';
+import { apiPost, apiGet } from "./utils"
+import { mainStore } from "../stores/store"
 
 // Auth
 export const auth = {
-  async login(email, password) {
+  async alive() {
     try {
-      const response = await apiPost('/auth/login/', { email, password });
-      
-      if (response.token) {
-        mainStore().token = response.token;
-        mainStore().screen = 'main';
-        return { success: true };
-      }
-      
-      return { 
-        success: false, 
-        error: response.message || 'Login failed' 
-      };
-    } catch (error) {
-      console.error('Login error:', error);
-      return { 
-        success: false, 
-        error: 'An unexpected error occurred' 
-      };
+      await apiPost("/alive")
+      return true
+    } catch {
+      return false
     }
   },
-  async register(name, email, password) {
+  async login() {
     try {
-      const response = await apiPost('/auth/register/', { name, email, password });
-      
+      const { email, password } = mainStore().tempUser
+      const response = await apiPost("/auth/login/", { email, password })
+
       if (response.token) {
-        mainStore().token = response.token;
-        return { success: true };
+        mainStore().token = response.token
+        mainStore().screen = "main"
+        mainStore().tempUser.password = ""
+        mainStore().setUserFromTempUser()
+        return { success: true }
       }
-      
+
+      return {
+        success: false,
+        error: response.message || "Login failed",
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      }
+    }
+  },
+  async register() {
+    try {
+      const { name, phone, phone_prefix, email, password } = mainStore().tempUser
+      const response = await apiPost("/auth/register/", { name, phone, phone_prefix, email, password })
+
+      if (response.token) {
+        mainStore().token = response.token
+        mainStore().tempUser.password = ""
+        mainStore().setUserFromTempUser()
+        return { success: true }
+      }
+
       // Handle validation errors from the response
       if (response.data?.errors) {
         return {
           success: false,
-          error: Object.values(response.data.errors).flat().join(', ')
-        };
+          error: Object.values(response.data.errors).flat().join(", "),
+        }
       }
-      
-      return { 
-        success: false, 
-        error: response.message || 'Registration failed' 
-      };
+
+      return {
+        success: false,
+        error: response.message || "Registration failed",
+      }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error)
       // Handle validation errors from the error object
       if (error.data?.errors) {
         return {
           success: false,
-          error: Object.values(error.data.errors).flat().join(', ')
-        };
+          error: Object.values(error.data.errors).flat().join(" "),
+        }
       }
-      return { 
-        success: false, 
-        error: 'An unexpected error occurred' 
-      };
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      }
     }
   },
   async logout() {
-    const response = await apiPost('/auth/logout/');
-    mainStore().token = '';
-    mainStore().user = null;
-    mainStore().screen = 'login';
-  }
-};
+    const response = await apiPost("/auth/logout/")
+    mainStore().token = ""
+    mainStore().user = null
+    mainStore().screen = "login"
+  },
+}
 
 export const transmissions = {
-
-  
   async sendTransmission(audioBlob, receiverId) {
     try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob);
-      formData.append('receiver_id', receiverId);
-      formData.append('origin', 'web');
+      const formData = new FormData()
+      formData.append("audio", audioBlob)
+      formData.append("receiver_id", receiverId)
+      formData.append("origin", "web")
 
-      const response = await apiPost('/transmissions/send/', formData);
-      
+      const response = await apiPost("/transmissions/send/", formData)
+
       // The response will contain message and transmission data
       return {
         success: true,
-        data: response
-      };
+        data: response,
+      }
     } catch (error) {
-      console.error('Error sending transmission:', error);
+      console.error("Error sending transmission:", error)
       return {
         success: false,
-        error: 'Failed to send transmission'
-      };
+        error: "Failed to send transmission",
+      }
     }
   },
   async getTransmissions() {
-    console.log('Getting transmissions');
-    const response = await apiGet('/transmissions/');
+    console.log("Getting transmissions")
+    const response = await apiGet("/transmissions/")
     console.log(response)
-    mainStore().transmissions = response.transmissions;
+    mainStore().transmissions = response.transmissions
   },
   async playTransmission(transmission) {
     try {
-      console.log('Playing transmission', transmission);
+      console.log("Playing transmission", transmission)
 
-      const audioBlob = await apiPost(
-        `/transmissions/listen/`, 
-        { transmission_id: transmission.id },
-        {},
-        'blob'
-      );
-      
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      
+      const audioBlob = await apiPost(`/transmissions/listen/`, { transmission_id: transmission.id }, {}, "blob")
+
+      const audioUrl = URL.createObjectURL(audioBlob)
+      const audio = new Audio(audioUrl)
+
       // Return a promise that resolves when audio finishes playing
       return new Promise((resolve, reject) => {
         audio.onended = () => {
-          URL.revokeObjectURL(audioUrl); // Clean up the blob URL
-          resolve();
-        };
+          URL.revokeObjectURL(audioUrl) // Clean up the blob URL
+          resolve()
+        }
         audio.onerror = (error) => {
-          URL.revokeObjectURL(audioUrl);
-          reject(error);
-        };
-        audio.play().catch(reject);
-      });
+          URL.revokeObjectURL(audioUrl)
+          reject(error)
+        }
+        audio.play().catch(reject)
+      })
     } catch (error) {
-      console.error('Error playing transmission:', error);
-      throw error;
+      console.error("Error playing transmission:", error)
+      throw error
     }
-  }
+  },
 }
 
 export const user = {
-  async updateProfile(profile) {
-    const response = await apiPost('/user/update/', profile);
-    mainStore().user = response;
-    return response;
+  async updateProfile() {
+    // Combine phone number before sending
+    const userData = { ...mainStore().tempUser }
+    if (userData.phone_prefix && userData.phone_number) {
+      userData.phone_combined = userData.phone_prefix + userData.phone_number
+    }
+
+    const response = await apiPost("/user/update/", userData)
+    mainStore().user = response
+    mainStore().tempUser = response
+    return response
   },
   async deleteAccount() {
-    const response = await apiPost('/user/delete/');
-    mainStore().user = null;
-    mainStore().token = '';
-    mainStore().screen = 'login';
-    return response;
-  }
-}
-
-export const getLoggedInUserDetails = async () => {
-  const response = await apiGet('/user/');
-
-  // if response.success
-  mainStore().user = response;
-  return response;
+    const response = await apiPost("/user/delete/")
+    mainStore().user = null
+    mainStore().tempUser = null
+    mainStore().token = ""
+    mainStore().screen = "login"
+    return response
+  },
+  async getUser() {
+    const response = await apiGet("/user/")
+    console.log("getUser response as", response)
+    mainStore().user = response
+    mainStore().tempUser = response
+    return response
+  },
 }
 
 export const getUserFriends = async () => {
-  const response = await apiGet('/friendships/');
-  mainStore().friends = response;
-  return response;
+  const response = await apiGet("/friendships/")
+  mainStore().friends = response
+  return response
 }
 
 export const sendFriendRequest = async (phone, email) => {
-  const response = await apiPost('/friendships/request', { phone, email });
-  await getUserFriends();
-  return response;
+  const response = await apiPost("/friendships/request", { phone, email })
+  await getUserFriends()
+  return response
 }
 
 export const acceptFriendRequest = async (friendId) => {
-  const response = await apiPost('/friendships/accept', { friend_id: friendId });
-  await getUserFriends();
-  return response;
+  const response = await apiPost("/friendships/accept", { friend_id: friendId })
+  await getUserFriends()
+  return response
 }
 
 export const cancelFriendRequest = async (friendId) => {
-  const response = await apiPost('/friendships/cancel', { friend_id: friendId });
-  await getUserFriends();
-  return response;
+  const response = await apiPost("/friendships/cancel", { friend_id: friendId })
+  await getUserFriends()
+  return response
 }
 
 export const rejectFriendRequest = async (friendId) => {
-  const response = await apiPost('/friendships/reject', { friend_id: friendId });
-  await getUserFriends();
-  return response;
+  const response = await apiPost("/friendships/reject", { friend_id: friendId })
+  await getUserFriends()
+  return response
 }
