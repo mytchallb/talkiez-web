@@ -38,13 +38,14 @@ export const auth = {
   },
   async register() {
     try {
-      const { name, phone, phone_prefix, email, password } = mainStore().tempUser
-      const response = await apiPost("/auth/register/", { name, phone, phone_prefix, email, password })
+      const { name, phone_combined, phone_prefix, email, password } = mainStore().tempUser
+      const response = await apiPost("/auth/register/", { name, phone_combined, phone_prefix, email, password })
 
       if (response.token) {
         mainStore().token = response.token
         mainStore().tempUser.password = ""
         mainStore().setUserFromTempUser()
+        mainStore().screen = "main"
         return { success: true }
       }
 
@@ -170,32 +171,30 @@ export const user = {
   },
 }
 
-export const getUserFriends = async () => {
-  const response = await apiGet("/friendships/")
-  mainStore().friends = response
-  return response
-}
-
-export const sendFriendRequest = async (phone, email) => {
-  const response = await apiPost("/friendships/request", { phone, email })
-  await getUserFriends()
-  return response
-}
-
-export const acceptFriendRequest = async (friendId) => {
-  const response = await apiPost("/friendships/accept", { friend_id: friendId })
-  await getUserFriends()
-  return response
-}
-
-export const cancelFriendRequest = async (friendId) => {
-  const response = await apiPost("/friendships/cancel", { friend_id: friendId })
-  await getUserFriends()
-  return response
-}
-
-export const rejectFriendRequest = async (friendId) => {
-  const response = await apiPost("/friendships/reject", { friend_id: friendId })
-  await getUserFriends()
-  return response
+export const friendships = {
+  async getUserFriends() {
+    const response = await apiGet("/friendships/")
+    mainStore().friends = response
+    return response
+  },
+  async sendFriendRequest(phone, email) {
+    const response = await apiPost("/friendships/request", { phone, email })
+    await friendships.getUserFriends()
+    return response
+  },
+  async acceptFriendRequest(request_id) {
+    const response = await apiPost("/friendships/accept", { request_id })
+    await friendships.getUserFriends()
+    return response
+  },
+  async cancelFriendRequest(request_id) {
+    const response = await apiPost("/friendships/cancel", { request_id })
+    await friendships.getUserFriends()
+    return response
+  },
+  async rejectFriendRequest(request_id) {
+    const response = await apiPost("/friendships/reject", { request_id })
+    await friendships.getUserFriends()
+    return response
+  },
 }

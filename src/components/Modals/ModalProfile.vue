@@ -1,10 +1,10 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen w-full">
-    <div class="bg-gray-medium p-8 rounded-lg shadow-md w-full max-w-md">
+  <Modal>
+    <template v-if="modalState === 'edit'">
       <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-white">Edit Profile</h1>
         <button
-          @click="leaveProfileScreen"
+          @click="store.popModal"
           class="text-gray-light hover:text-gray-medium transition-colors rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-dark"
         >
           <svg class="w-5 h-5 fill-gray-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
@@ -43,51 +43,50 @@
         <button type="submit" class="btn">Save Changes</button>
 
         <div class="flex justify-center mt-8">
-          <button @click.prevent="handleDelete" class="px-4 py-2 text-sm text-red-500 hover:text-red-700 hover:underline">Delete Account</button>
+          <button @click.prevent="modalState = 'delete'" class="px-4 py-2 text-sm text-red-500 hover:text-red-700 hover:underline">Delete Account</button>
         </div>
 
         <p v-if="error" class="text-red-500 text-center">{{ error }}</p>
       </form>
-    </div>
-  </div>
+    </template>
+    <template v-else-if="modalState === 'delete'">
+      <h1 class="text-2xl font-bold mb-4">Are you sure?</h1>
+      <p class="text-gray-600 mb-6">Deleting your account cannot be undone.</p>
+      <div class="flex justify-end gap-4 mt-6">
+        <button @click="modalState = 'edit'" class="btn">Cancel</button>
+        <button @click="handleDelete" class="btn warning">Delete account</button>
+      </div>
+    </template>
+  </Modal>
 </template>
-
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref } from "vue"
 import { mainStore } from "@/stores/store"
+import Modal from "@/components/Modal.vue"
 import { user } from "@/lib/methods"
 import PhoneNumber from "@/components/PhoneNumber.vue"
-import { languages } from "@/lib/constants"
+
 const store = mainStore()
 const error = ref("")
-
-onMounted(() => {
-  // store.tempUser = JSON.parse(JSON.stringify(store.user))
-})
+const modalState = ref("edit") // edit, delete
 
 async function handleUpdate() {
   try {
     await user.updateProfile()
     store.setUserFromTempUser()
-    leaveProfileScreen()
+    store.popModal()
   } catch (err) {
     console.error("Update error:", err)
     error.value = Object.values(err.errors).flat().join(" ")
   }
 }
 
-const leaveProfileScreen = () => {
-  store.screen = "main"
-}
-
 async function handleDelete() {
-  if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-    try {
-      await user.deleteAccount()
-    } catch (err) {
-      console.error("Delete error:", err)
-      error.value = "Failed to delete account"
-    }
+  try {
+    await user.deleteAccount()
+  } catch (err) {
+    console.error("Delete error:", err)
+    error.value = "Failed to delete account"
   }
 }
 </script>

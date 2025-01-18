@@ -24,14 +24,15 @@ export const mainStore = defineStore("main", {
     api: "http://talkiez-api.test/api",
     friends: ref([]),
     selectedContact: ref(null),
-    modals: {
-      addFriend: false,
-    },
+    modals: ref([]),
     transmissions: ref([]),
   }),
   actions: {
     setUserFromTempUser() {
       this.user = this.tempUser
+    },
+    popModal() {
+      this.modals.pop()
     },
   },
   persist: true,

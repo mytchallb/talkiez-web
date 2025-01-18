@@ -1,9 +1,9 @@
 <template>
   <div class="flex justify-center items-center min-h-screen w-full">
-    <div class="bg-gray-medium p-8 rounded-lg shadow-md w-full max-w-md">
+    <div class="bg-gray-medium p-8 rounded-lg shadow-md w-full max-w-md mx-2">
       <div class="flex items-center justify-center gap-2 mb-4">
         <img src="/logo.png" alt="Talkiez" class="w-10 h-10 object-contain" />
-        <h1 class="text-4xl font-bold text-white">Talkiez</h1>
+        <h1 class="text-4xl !mb-0 font-bold text-white">Talkiez</h1>
       </div>
 
       <form @submit.prevent="handleSubmit" class="flex flex-col space-y-4">
@@ -25,7 +25,7 @@
         </div>
 
         <div v-if="showApi" class="flex flex-col space-y-1">
-          <label for="api" class="text-gray-superlight text-base">API</label>
+          <label for="api" class="text-gray-superlight text-base" title="Choose where the app connects to">API Url</label>
           <input type="text" v-model="store.api" required />
         </div>
 

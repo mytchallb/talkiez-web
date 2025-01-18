@@ -8,14 +8,14 @@
 
 <script setup>
 import { ref, onUnmounted, onMounted } from "vue"
-import { user, getUserFriends, transmissions } from "../../lib/methods"
+import { user, friendships, transmissions } from "../../lib/methods"
 import Nav from "@/components/Nav.vue"
 import Friends from "@/components/Friends.vue"
 import Recorder from "@/components/Recorder.vue"
 
 onMounted(async () => {
   await user.getUser()
-  await getUserFriends()
+  await friendships.getUserFriends()
   await transmissions.getTransmissions()
 })
 </script>

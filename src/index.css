@@ -13,6 +13,36 @@ input[type="tel"] {
   @apply w-full py-3 mt-2 bg-primary font-bold hover:bg-primary-light rounded-md text-base cursor-pointer transition-colors;
 }
 
+.btn.secondary {
+  @apply bg-transparent hover:bg-gray-dark text-gray-light;
+}
+
+.btn.warning {
+  @apply bg-red-500 hover:bg-red-700 text-white;
+}
+
 select {
   @apply p-3 border border-[#2d2d2d] bg-gray-dark text-white rounded-md text-base;
+}
+
+h1 {
+  @apply text-4xl font-bold mb-4;
+}
+
+h2 {
+  @apply text-3xl font-bold mb-4;
+}
+
+h3 {
+  @apply text-2xl font-bold mb-4;
+}
+
+.modal {
+  @apply bg-gray-medium p-8 rounded-lg shadow-md w-full max-w-md;
+}
+.modal h1, h2, h3, h4, h5, h6 {
+  @apply text-white;
+}
+.modal p {
+  @apply text-gray-superlight text-base;
 }
