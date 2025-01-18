@@ -1,6 +1,8 @@
 # talkiez-web
 
-Vue app talking to Laravel backend
+The Vue.js web interface for Talkiez, a walkie-talkie app.
+
+Hosted at <app.talkiez.dev>
 
 ## Future ideas
 

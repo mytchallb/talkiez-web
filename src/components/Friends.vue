@@ -77,16 +77,35 @@
   </div>
 </template>
 <script setup>
-import { computed } from "vue"
+import { ref, onMounted, watch } from "vue"
 import { mainStore } from "../stores/store"
 import { friendships, transmissions } from "../lib/methods"
 const store = mainStore()
 
-const acceptedFriends = computed(() => store.friends.filter((f) => f.status === "accepted"))
+const acceptedFriends = ref([])
+const outgoingRequests = ref([])
+const incomingRequests = ref([])
 
-const outgoingRequests = computed(() => store.friends.filter((f) => f.status === "pending" && f.sender_id === store.user.id))
+const updateFriendLists = () => {
+  if (!store.friends || !Array.isArray(store.friends)) return
 
-const incomingRequests = computed(() => store.friends.filter((f) => f.status === "pending" && f.sender_id !== store.user.id))
+  acceptedFriends.value = store.friends.filter((f) => f.status === "accepted")
+  outgoingRequests.value = store.friends.filter((f) => f.status === "pending" && f.sender_id === store.user.id)
+  incomingRequests.value = store.friends.filter((f) => f.status === "pending" && f.sender_id !== store.user.id)
+}
+
+onMounted(() => {
+  updateFriendLists()
+})
+
+// Watch for changes in store.friends
+watch(
+  () => store.friends,
+  (newFriends) => {
+    updateFriendLists()
+  },
+  { deep: true },
+)
 
 const hasPendingTransmissions = (friendId) => {
   return store.transmissions.some((t) => t.sender_id === friendId && t.status === "pending")
