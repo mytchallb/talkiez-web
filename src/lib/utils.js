@@ -20,6 +20,8 @@ export const apiGet = async (endpoint, params = {}, headers = {}) => {
       Authorization: `Bearer ${getToken()}`,
       ...headers,
     },
+    credentials: "include",
+    mode: "cors",
   })
   const text = await response.text()
 
@@ -54,6 +56,8 @@ export const apiPost = async (endpoint, data = {}, headers = {}, responseType = 
       ...headers,
     },
     body,
+    mode: "cors",
+    credentials: "include",
   })
 
   // If response is not ok, handle the error

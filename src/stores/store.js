@@ -21,7 +21,7 @@ export const mainStore = defineStore("main", {
       password: "admin",
       language: "en",
     }),
-    api: "https://talkiez-api.test/api",
+    api: "https://api.talkiez.dev/api",
     friends: ref([]),
     selectedContact: ref(null),
     modals: ref([]),

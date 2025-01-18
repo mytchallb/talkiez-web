@@ -14,7 +14,7 @@ export const auth = {
   async login() {
     try {
       const { email, password } = mainStore().tempUser
-      const response = await apiPost("/auth/login/", { email, password })
+      const response = await apiPost("/auth/login", { email, password })
 
       if (response.token) {
         mainStore().token = response.token
@@ -39,7 +39,7 @@ export const auth = {
   async register() {
     try {
       const { name, phone_combined, phone_prefix, email, password } = mainStore().tempUser
-      const response = await apiPost("/auth/register/", { name, phone_combined, phone_prefix, email, password })
+      const response = await apiPost("/auth/register", { name, phone_combined, phone_prefix, email, password })
 
       if (response.token) {
         mainStore().token = response.token
@@ -77,7 +77,7 @@ export const auth = {
     }
   },
   async logout() {
-    const response = await apiPost("/auth/logout/")
+    const response = await apiPost("/auth/logout")
     mainStore().token = ""
     mainStore().user = null
     mainStore().screen = "login"
@@ -92,7 +92,7 @@ export const transmissions = {
       formData.append("receiver_id", receiverId)
       formData.append("origin", "web")
 
-      const response = await apiPost("/transmissions/send/", formData)
+      const response = await apiPost("/transmissions/send", formData)
 
       // The response will contain message and transmission data
       return {
@@ -109,7 +109,7 @@ export const transmissions = {
   },
   async getTransmissions() {
     console.log("Getting transmissions")
-    const response = await apiGet("/transmissions/")
+    const response = await apiGet("/transmissions")
     console.log(response)
     mainStore().transmissions = response.transmissions
   },
@@ -149,13 +149,13 @@ export const user = {
       userData.phone_combined = userData.phone_prefix + userData.phone_number
     }
 
-    const response = await apiPost("/user/update/", userData)
+    const response = await apiPost("/user/update", userData)
     mainStore().user = response
     mainStore().tempUser = response
     return response
   },
   async deleteAccount() {
-    const response = await apiPost("/user/delete/")
+    const response = await apiPost("/user/delete")
     mainStore().user = null
     mainStore().tempUser = null
     mainStore().token = ""
@@ -163,7 +163,7 @@ export const user = {
     return response
   },
   async getUser() {
-    const response = await apiGet("/user/")
+    const response = await apiGet("/user")
     console.log("getUser response as", response)
     mainStore().user = response
     mainStore().tempUser = response
@@ -173,7 +173,7 @@ export const user = {
 
 export const friendships = {
   async getUserFriends() {
-    const response = await apiGet("/friendships/")
+    const response = await apiGet("/friendships")
     mainStore().friends = response
     return response
   },
