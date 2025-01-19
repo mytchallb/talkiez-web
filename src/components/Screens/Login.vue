@@ -103,10 +103,6 @@ async function handleRegister() {
   try {
     const result = await auth.register()
     error.value = result.success ? "" : result.error
-    if (result.success) {
-      isLogin.value = true // Switch to login view after successful registration
-      await handleLogin() // Automatically log in after registration
-    }
   } catch (err) {
     console.error("Registration error:", err)
     error.value = "An unexpected error occurred"

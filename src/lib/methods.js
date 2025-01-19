@@ -17,10 +17,11 @@ export const auth = {
       const response = await apiPost("/auth/login", { email, password })
 
       if (response.token) {
-        mainStore().token = response.token
-        mainStore().screen = "main"
         mainStore().tempUser.password = ""
         mainStore().setUserFromTempUser()
+        mainStore().resetState(true)
+        mainStore().screen = "main"
+        mainStore().token = response.token
         return { success: true }
       }
 
@@ -38,7 +39,8 @@ export const auth = {
   },
   async register() {
     try {
-      const { name, phone_combined, phone_prefix, email, password } = mainStore().tempUser
+      const { name, phone_number, phone_prefix, email, password } = mainStore().tempUser
+      const phone_combined = phone_prefix + phone_number
       const response = await apiPost("/auth/register", { name, phone_combined, phone_prefix, email, password })
 
       if (response.token) {
@@ -77,10 +79,8 @@ export const auth = {
     }
   },
   async logout() {
-    const response = await apiPost("/auth/logout")
-    mainStore().token = ""
-    mainStore().user = null
-    mainStore().screen = "login"
+    await apiPost("/auth/logout")
+    mainStore().resetState()
   },
 }
 
@@ -150,8 +150,7 @@ export const user = {
     }
 
     const response = await apiPost("/user/update", userData)
-    mainStore().user = response
-    mainStore().tempUser = response
+    mainStore().setUserFromTempUser()
     return response
   },
   async deleteAccount() {

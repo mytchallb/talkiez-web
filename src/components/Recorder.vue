@@ -106,7 +106,7 @@ const stopRecording = async () => {
   try {
     const mp3Blob = await recorder.value.stopRecording()
     if (mp3Blob) {
-      recorder.value.downloadFile(mp3Blob)
+      // recorder.value.downloadFile(mp3Blob)
       const result = await transmissions.sendTransmission(mp3Blob, store.selectedContact.id)
       if (result.success) {
         console.log("Audio sent successfully:", result.data)
