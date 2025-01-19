@@ -5,7 +5,7 @@
       :class="buttonClasses"
       @mousedown="startRecording"
     >
-      <span class="font-bold text-center">{{ buttonMessage }}</span>
+      <span class="font-bold text-center pointer-events-none user-select-none">{{ buttonMessage }}</span>
     </div>
   </div>
 </template>
@@ -48,12 +48,14 @@ onMounted(async () => {
 const canRecord = computed(() => store.selectedContact && recorder.value?.isInitialized && hasPermission.value)
 const buttonClasses = computed(() => ({
   "bg-red-500": isRecording.value,
-  "bg-gray-light cursor-not-allowed": !canRecord.value,
-  "bg-primary": !isRecording.value && canRecord.value,
+  "bg-gray-light text-white cursor-not-allowed": !canRecord.value,
+  "bg-primary text-black": !isRecording.value && canRecord.value,
 }))
 
 const buttonMessage = computed(() => {
-  if (!store.selectedContact) return "Select a contact to record"
+  // See if we have friends
+  if (store.user?.friends?.length === 0) return "Invite a friend to start"
+  if (!store.selectedContact) return "Choose someone to talk to"
   if (!hasPermission.value) return "Microphone access needed - Click for instructions"
   if (!recorder.value?.isInitialized) return "Initializing..."
   if (isRecording.value) return remainingTime.value

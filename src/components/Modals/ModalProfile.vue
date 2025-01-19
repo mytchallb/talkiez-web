@@ -1,8 +1,8 @@
 <template>
   <Modal>
     <template v-if="modalState === 'edit'">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-white">Edit Profile</h1>
+      <div class="flex justify-between items-center mb-4 sm:mb-8">
+        <h1 class="text-3xl mb-0 font-bold text-white">Edit Profile</h1>
         <button
           @click="store.popModal"
           class="text-gray-light hover:text-gray-medium transition-colors rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-dark"
@@ -17,14 +17,14 @@
 
       <form @submit.prevent="handleUpdate" class="flex flex-col space-y-4 relative">
         <div class="flex flex-col space-y-1">
-          <label for="name" class="text-gray-superlight text-base">Name</label>
+          <label for="name" class="text-gray-superlight text-sm sm:text-base">Name*</label>
           <input type="text" v-model="store.tempUser.name" required />
         </div>
 
         <PhoneNumber />
 
         <div class="flex flex-col space-y-1">
-          <label for="email" class="text-gray-superlight text-base">Email</label>
+          <label for="email" class="text-gray-superlight text-sm sm:text-base">Email*</label>
           <input type="email" v-model="store.tempUser.email" required />
         </div>
 
@@ -36,24 +36,25 @@
         </div> -->
 
         <div class="flex flex-col space-y-1">
-          <label for="password" class="text-gray-superlight text-base">New Password (optional)</label>
+          <label for="password" class="text-gray-superlight text-sm sm:text-base">New Password</label>
           <input type="password" v-model="store.tempUser.password" class="p-3 border border-gray-300 rounded-md text-base" />
         </div>
 
         <button type="submit" class="btn">Save Changes</button>
-
-        <div class="flex justify-center mt-8">
-          <button @click.prevent="modalState = 'delete'" class="px-4 py-2 text-sm text-red-500 hover:text-red-700 hover:underline">Delete Account</button>
-        </div>
-
-        <p v-if="error" class="text-red-500 text-center">{{ error }}</p>
       </form>
+      <div class="flex justify-between mt-8">
+        <button @click.prevent="modalState = 'delete'" class="btn danger transparent">Delete Account</button>
+        <button @click="handleLogout" class="btn secondary">Logout</button>
+      </div>
+
+      <p v-if="error" class="!text-red-500 text-center">{{ error }}</p>
     </template>
     <template v-else-if="modalState === 'delete'">
       <h1 class="text-2xl font-bold mb-4">Are you sure?</h1>
       <p class="text-gray-600 mb-6">Deleting your account cannot be undone.</p>
       <div class="flex justify-end gap-4 mt-6">
         <button @click="modalState = 'edit'" class="btn">Cancel</button>
+
         <button @click="handleDelete" class="btn warning">Delete account</button>
       </div>
     </template>
@@ -63,7 +64,7 @@
 import { ref } from "vue"
 import { mainStore } from "@/stores/store"
 import Modal from "@/components/Modal.vue"
-import { user } from "@/lib/methods"
+import { user, auth } from "@/lib/methods"
 import PhoneNumber from "@/components/PhoneNumber.vue"
 
 const store = mainStore()
@@ -87,6 +88,15 @@ async function handleDelete() {
   } catch (err) {
     console.error("Delete error:", err)
     error.value = "Failed to delete account"
+  }
+}
+
+async function handleLogout() {
+  try {
+    await auth.logout()
+  } catch (err) {
+    console.error("Logout error:", err)
+    error.value = "Failed to logout"
   }
 }
 </script>

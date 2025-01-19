@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center min-h-screen">
+  <div class="flex flex-col items-center w-full h-full">
     <Nav />
     <Recorder />
     <Friends />

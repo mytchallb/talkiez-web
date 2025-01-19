@@ -1,5 +1,5 @@
 <template>
-  <main class="w-full h-full bg-cover bg-center bg-gray-dark">
+  <main class="fixed top-0 left-0 w-full h-[100dvh] bg-cover bg-center bg-gray-dark flex items-center justify-center">
     <Login v-if="!store.token || store.screen === 'login'" />
     <Main v-else-if="store.screen === 'main'" />
     <Modals />

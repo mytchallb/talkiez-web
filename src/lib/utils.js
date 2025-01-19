@@ -99,3 +99,8 @@ export const apiPost = async (endpoint, data = {}, headers = {}, responseType = 
     throw new Error("Invalid response format from server")
   }
 }
+
+export const trimWord = (word, maxLength) => {
+  if (word.length <= maxLength) return word
+  return word.slice(0, maxLength - 2) + ".."
+}

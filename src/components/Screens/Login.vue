@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-center items-center min-h-screen w-full">
-    <div class="bg-gray-medium p-8 rounded-lg shadow-md w-full max-w-md mx-2">
+    <div class="bg-gray-medium p-4 px-6 sm:p-8 rounded-lg shadow-md w-full max-w-md mx-2">
       <div class="flex items-center justify-center gap-2 mb-4">
         <img src="/logo.png" alt="Talkiez" class="w-10 h-10 object-contain" />
         <h1 class="text-4xl !mb-0 font-bold text-white">Talkiez</h1>

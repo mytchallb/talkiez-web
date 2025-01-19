@@ -164,8 +164,8 @@ export const user = {
   async getUser() {
     const response = await apiGet("/user")
     console.log("getUser response as", response)
-    mainStore().user = response
-    mainStore().tempUser = response
+    mainStore().user = { ...response }
+    mainStore().tempUser = { ...response }
     return response
   },
 }
@@ -176,8 +176,8 @@ export const friendships = {
     mainStore().friends = response
     return response
   },
-  async sendFriendRequest(phone, email) {
-    const response = await apiPost("/friendships/request", { phone, email })
+  async sendFriendRequest(phone_combined, email) {
+    const response = await apiPost("/friendships/request", { phone_combined, email })
     await friendships.getUserFriends()
     return response
   },

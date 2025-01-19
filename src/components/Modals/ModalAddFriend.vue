@@ -4,9 +4,9 @@
       <h1 class="text-2xl font-bold mb-4">Add Friend</h1>
       <p class="text-gray-600 mb-6">Send a friend request to a phone number or email address.</p>
       <div class="flex flex-col gap-4">
-        <input type="text" v-model="phone" placeholder="Phone Number" class="p-2 border border-gray-300 rounded-md" />
+        <PhoneNumber :isUser="false" />
         <p class="text-gray-400 text-center">- or -</p>
-        <input type="text" v-model="email" placeholder="Email Address" class="p-2 border border-gray-300 rounded-md" />
+        <input type="text" v-model="emailRef" placeholder="Email Address" class="p-2 border border-gray-300 rounded-md" />
       </div>
       <div class="flex justify-end gap-4 mt-6">
         <button @click="store.popModal()" class="btn secondary">Cancel</button>
@@ -30,23 +30,31 @@ import { ref } from "vue"
 import { mainStore } from "../../stores/store"
 import { friendships } from "@/lib/methods"
 import Modal from "@/components/Modal.vue"
+import PhoneNumber from "@/components/PhoneNumber.vue"
 
 const store = mainStore()
-const phone = ref("")
-const email = ref("")
+
+const emailRef = ref("")
 const modalState = ref("add") // add, success
 const errorMsg = ref("")
 
 const addFriend = async () => {
   errorMsg.value = ""
+  const phone = (store.tempUser.phone_prefix + store.tempUser.phone_number).trim() || ""
+  const email = emailRef.value.trim() || ""
 
-  if (!phone.value.trim() && !email.value.trim()) {
+  if (!phone && !email) {
     errorMsg.value = "Please enter a phone number or email address."
     return
   }
 
+  if (store.tempUser.phone_number == "") {
+    errorMsg.value = "Please enter a phone number."
+    return
+  }
+
   try {
-    await friendships.sendFriendRequest(phone.value.trim() || "", email.value.trim() || "")
+    await friendships.sendFriendRequest(phone, email)
     modalState.value = "success"
   } catch (error) {
     if (error.errors && Object.keys(error.errors).length > 0) {
