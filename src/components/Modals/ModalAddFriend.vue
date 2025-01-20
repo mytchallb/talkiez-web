@@ -48,11 +48,6 @@ const addFriend = async () => {
     return
   }
 
-  if (store.tempUser.phone_number == "") {
-    errorMsg.value = "Please enter a phone number."
-    return
-  }
-
   try {
     await friendships.sendFriendRequest(phone, email)
     modalState.value = "success"

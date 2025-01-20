@@ -79,8 +79,8 @@ export const auth = {
     }
   },
   async logout() {
-    await apiPost("/auth/logout")
     mainStore().resetState()
+    await apiPost("/auth/logout")
   },
 }
 

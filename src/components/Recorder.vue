@@ -4,6 +4,7 @@
       class="w-52 h-52 p-4 rounded-full flex items-center justify-center text-black cursor-pointer select-none m-auto"
       :class="buttonClasses"
       @mousedown="startRecording"
+      @touchstart.prevent="startRecording"
     >
       <span class="font-bold text-center pointer-events-none user-select-none">{{ buttonMessage }}</span>
     </div>
@@ -88,6 +89,7 @@ const startRecording = async () => {
 
   await recorder.value.startRecording()
   document.addEventListener("mouseup", stopRecording)
+  document.addEventListener("touchend", stopRecording)
 
   recordingTimer.value = setInterval(() => {
     remainingTime.value--
@@ -103,13 +105,15 @@ const stopRecording = async () => {
   isRecording.value = false
   clearInterval(recordingTimer.value)
   document.removeEventListener("mouseup", stopRecording)
+  document.removeEventListener("touchend", stopRecording)
   remainingTime.value = MAX_DURATION
 
   try {
     const mp3Blob = await recorder.value.stopRecording()
     if (mp3Blob) {
       // recorder.value.downloadFile(mp3Blob)
-      const result = await transmissions.sendTransmission(mp3Blob, store.selectedContact.id)
+      console.log("sending to ", store.selectedContact.friend_user_id)
+      const result = await transmissions.sendTransmission(mp3Blob, store.selectedContact.friend_user_id)
       if (result.success) {
         console.log("Audio sent successfully:", result.data)
       } else {
@@ -126,6 +130,7 @@ const stopRecording = async () => {
 
 onUnmounted(() => {
   document.removeEventListener("mouseup", stopRecording)
+  document.removeEventListener("touchend", stopRecording)
   clearInterval(recordingTimer.value)
 })
 </script>
