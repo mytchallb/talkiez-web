@@ -127,7 +127,7 @@ export const transmissions = {
     try {
       console.log("Playing transmission", transmission)
 
-      const audioBlob = await apiPost(`/transmissions/listen/`, { transmission_id: transmission.id }, {}, "blob")
+      const audioBlob = await apiPost(`/transmissions/listen`, { transmission_id: transmission.id }, {}, "blob")
 
       const audioUrl = URL.createObjectURL(audioBlob)
       const audio = new Audio(audioUrl)
