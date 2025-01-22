@@ -21,7 +21,10 @@
           </svg>
         </div>
 
-        <div class="w-16 h-16 rounded-full flex items-center justify-center mb-1" :class="store.selectedContact === friend ? 'bg-blue' : 'bg-gray-light'">
+        <div
+          class="w-16 h-16 rounded-full flex items-center justify-center mb-1"
+          :class="store.selectedContact?.friend_user_id === friend.friend_user_id ? 'bg-blue' : 'bg-gray-light'"
+        >
           <span class="text-sm text-white text-center">{{ friend.name }}</span>
         </div>
       </div>

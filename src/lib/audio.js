@@ -7,7 +7,14 @@ export class AudioRecorder {
     this.stream = null
   }
 
-  async init() {
+  getBestAudioType() {
+    const types = ["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"]
+    return types.find((type) => MediaRecorder.isTypeSupported(type))
+  }
+
+  async startRecording(onDataAvailable) {
+    if (this.mediaRecorder?.state === "recording") return
+
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -31,30 +38,18 @@ export class AudioRecorder {
         bitsPerSecond: 256000,
       })
 
-      console.log(`Recording initialized using: ${mimeType}`)
-      return true
+      this.audioChunks = []
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data)
+        if (onDataAvailable) onDataAvailable(event.data)
+      }
+
+      this.mediaRecorder.start(10) // Collect data every 10ms for smoother processing
+      console.log("Recording started")
     } catch (err) {
       console.error("Error initializing recorder:", err)
-      return false
+      throw err // Re-throw to handle in the UI
     }
-  }
-
-  getBestAudioType() {
-    const types = ["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"]
-    return types.find((type) => MediaRecorder.isTypeSupported(type))
-  }
-
-  async startRecording(onDataAvailable) {
-    if (!this.mediaRecorder || this.mediaRecorder.state === "recording") return
-
-    this.audioChunks = []
-    this.mediaRecorder.ondataavailable = (event) => {
-      this.audioChunks.push(event.data)
-      if (onDataAvailable) onDataAvailable(event.data)
-    }
-
-    this.mediaRecorder.start(10) // Collect data every 10ms for smoother processing
-    console.log("Recording started")
   }
 
   downloadRawAudio(rawAudioBlob) {

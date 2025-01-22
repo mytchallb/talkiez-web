@@ -15,7 +15,7 @@
         </button>
       </div>
 
-      <form @submit.prevent="handleUpdate" class="flex flex-col space-y-4 relative">
+      <form @submit.prevent="handleUpdate" class="flex flex-col space-y-4 relative" autocomplete="off">
         <div class="flex flex-col space-y-1">
           <label for="name" class="text-gray-superlight text-sm sm:text-base">Name*</label>
           <input type="text" v-model="store.tempUser.name" required />
@@ -40,7 +40,12 @@
           <input type="password" v-model="store.tempUser.password" class="p-3 border border-gray-300 rounded-md text-base" />
         </div>
 
-        <button type="submit" class="btn">Save Changes</button>
+        <button type="submit" class="btn">
+          <span v-if="loading">
+            <Loader />
+          </span>
+          <span v-else>Save Changes</span>
+        </button>
       </form>
       <div class="flex justify-between mt-8">
         <button @click.prevent="modalState = 'delete'" class="btn danger transparent">Delete Account</button>
@@ -66,37 +71,47 @@ import { mainStore } from "@/stores/store"
 import Modal from "@/components/Modal.vue"
 import { user, auth } from "@/lib/methods"
 import PhoneNumber from "@/components/PhoneNumber.vue"
+import Loader from "@/components/Loader.vue"
 
 const store = mainStore()
 const error = ref("")
 const modalState = ref("edit") // edit, delete
+const loading = ref(false)
 
 async function handleUpdate() {
+  loading.value = true
   try {
     await user.updateProfile()
-    store.setUserFromTempUser()
     store.popModal()
   } catch (err) {
     console.error("Update error:", err)
     error.value = Object.values(err.errors).flat().join(" ")
+  } finally {
+    loading.value = false
   }
 }
 
 async function handleDelete() {
+  loading.value = true
   try {
     await user.deleteAccount()
   } catch (err) {
     console.error("Delete error:", err)
     error.value = "Failed to delete account"
+  } finally {
+    loading.value = false
   }
 }
 
 async function handleLogout() {
   try {
+    loading.value = true
     await auth.logout()
   } catch (err) {
     console.error("Logout error:", err)
     error.value = "Failed to logout"
+  } finally {
+    loading.value = false
   }
 }
 </script>

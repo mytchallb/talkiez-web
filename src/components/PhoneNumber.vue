@@ -5,7 +5,7 @@
       <select v-model="store.tempUser.phone_prefix" class="w-[130px] rounded-r-none">
         <option v-for="country in sortedCountryCodes" :key="country.code" :value="country.dial_code">{{ country.emoji }} {{ country.dial_code }}</option>
       </select>
-      <input type="tel" class="w-full !rounded-l-none !border-l-0" v-model="store.tempUser.phone_number" required />
+      <input autocomplete="off" type="tel" class="w-full !rounded-l-none !border-l-0" v-model="store.tempUser.phone_number" required />
     </div>
   </div>
 </template>

@@ -6,7 +6,7 @@
       <div class="flex flex-col gap-4">
         <PhoneNumber :isUser="false" />
         <p class="text-gray-400 text-center">- or -</p>
-        <input type="text" v-model="emailRef" placeholder="Email Address" class="p-2 border border-gray-300 rounded-md" />
+        <input autocomplete="off" type="text" v-model="emailRef" placeholder="Email Address" class="p-2 border border-gray-300 rounded-md" />
       </div>
       <div class="flex justify-end gap-4 mt-6">
         <button @click="store.popModal()" class="btn secondary">Cancel</button>

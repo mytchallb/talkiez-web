@@ -26,10 +26,11 @@ export const mainStore = defineStore("main", {
     selectedContact: ref(null),
     modals: ref([]),
     transmissions: ref([]),
+    micPermissionGranted: false,
   }),
   actions: {
     setUserFromTempUser() {
-      this.user = ref(structuredClone(this.tempUser.value))
+      this.user = JSON.parse(JSON.stringify(this.tempUser))
     },
     popModal() {
       this.modals.pop()

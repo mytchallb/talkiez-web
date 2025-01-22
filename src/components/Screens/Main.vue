@@ -14,8 +14,8 @@ import Friends from "@/components/Friends.vue"
 import Recorder from "@/components/Recorder.vue"
 
 onMounted(async () => {
-  await user.getUser()
-  await friendships.getUserFriends()
-  await transmissions.getTransmissions()
+  // await user.getUser()
+  // await friendships.getUserFriends()
+  // await transmissions.getTransmissions()
 })
 </script>

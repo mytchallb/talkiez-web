@@ -25,28 +25,14 @@ const remainingTime = ref(MAX_DURATION)
 const recordingTimer = ref(null)
 const hasPermission = ref(null)
 
-onMounted(async () => {
-  try {
-    // Check if we already have permission
-    const permissionStatus = await navigator.permissions.query({ name: "microphone" })
-    hasPermission.value = permissionStatus.state === "granted"
-
-    // Listen for permission changes
-    permissionStatus.addEventListener("change", () => {
-      hasPermission.value = permissionStatus.state === "granted"
-    })
-
-    recorder.value = new AudioRecorder()
-    await recorder.value.init()
-    recorder.value.isInitialized = true
-  } catch (err) {
-    console.error("Error checking microphone permission:", err)
-    hasPermission.value = false
-  }
+onMounted(() => {
+  // Simplified - just create the recorder instance
+  recorder.value = new AudioRecorder()
+  recorder.value.isInitialized = true
 })
 
 // Computed properties for better state management
-const canRecord = computed(() => store.selectedContact && recorder.value?.isInitialized && hasPermission.value)
+const canRecord = computed(() => store.selectedContact && recorder.value?.isInitialized)
 const buttonClasses = computed(() => ({
   "bg-red-500": isRecording.value,
   "bg-gray-light text-white cursor-not-allowed": !canRecord.value,
@@ -57,46 +43,49 @@ const buttonMessage = computed(() => {
   // See if we have friends
   if (store.user?.friends?.length === 0) return "Invite a friend to start"
   if (!store.selectedContact) return "Choose someone to talk to"
-  if (!hasPermission.value) return "Microphone access needed - Click for instructions"
   if (!recorder.value?.isInitialized) return "Initializing..."
   if (isRecording.value) return remainingTime.value
   return "Hold to Speak"
 })
 
 const startRecording = async () => {
-  if (!canRecord.value || isRecording.value) {
-    // If we don't have permission, try to get it
-    if (!hasPermission.value) {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true })
-        hasPermission.value = true
-      } catch (err) {
-        console.error("Error requesting microphone permission:", err)
-        // Show instructions for enabling microphone access
-        alert(
-          "To enable microphone access:\n" +
-            "1. Click the camera/microphone icon in your address bar\n" +
-            "2. Select 'Always allow' for microphone\n" +
-            "3. Refresh the page",
-        )
+  if (!canRecord.value || isRecording.value) return
+
+  // Check/request microphone permission when user tries to record
+  try {
+    // First check if we already have permission
+    if (!store.micPermissionGranted) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // If we get here, permission was granted
+      stream.getTracks().forEach((track) => track.stop()) // Clean up the stream
+      store.micPermissionGranted = true
+      // Return early - user needs to press button again
+      return
+    }
+
+    // If we have permission, start recording
+    isRecording.value = true
+    remainingTime.value = MAX_DURATION
+
+    await recorder.value.startRecording()
+    document.addEventListener("mouseup", stopRecording)
+    document.addEventListener("touchend", stopRecording)
+
+    recordingTimer.value = setInterval(() => {
+      remainingTime.value--
+      if (remainingTime.value <= 0) {
+        stopRecording()
       }
-    }
-    return
+    }, 1000)
+  } catch (err) {
+    console.error("Error requesting microphone permission:", err)
+    alert(
+      "To enable microphone access:\n" +
+        "1. Click the camera/microphone icon in your address bar\n" +
+        "2. Select 'Always allow' for microphone\n" +
+        "3. Refresh the page",
+    )
   }
-
-  isRecording.value = true
-  remainingTime.value = MAX_DURATION
-
-  await recorder.value.startRecording()
-  document.addEventListener("mouseup", stopRecording)
-  document.addEventListener("touchend", stopRecording)
-
-  recordingTimer.value = setInterval(() => {
-    remainingTime.value--
-    if (remainingTime.value <= 0) {
-      stopRecording()
-    }
-  }, 1000)
 }
 
 const stopRecording = async () => {
@@ -123,9 +112,6 @@ const stopRecording = async () => {
   } catch (err) {
     console.error("Error processing recording:", err)
   }
-
-  // Reinitialize recorder for next recording
-  await recorder.value.init()
 }
 
 onUnmounted(() => {

@@ -1,7 +1,12 @@
 import { apiPost, apiGet } from "./utils"
 import { mainStore } from "../stores/store"
 
-// Auth
+export const startApp = async () => {
+  await user.getUser()
+  await friendships.getUserFriends()
+  await transmissions.getTransmissions()
+}
+
 export const auth = {
   async alive() {
     try {
@@ -79,8 +84,13 @@ export const auth = {
     }
   },
   async logout() {
-    mainStore().resetState()
-    await apiPost("/auth/logout")
+    try {
+      await apiPost("/auth/logout")
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      mainStore().resetState()
+    }
   },
 }
 
