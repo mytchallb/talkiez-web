@@ -18,14 +18,14 @@
       <form @submit.prevent="handleUpdate" class="flex flex-col space-y-4 relative" autocomplete="off">
         <div class="flex flex-col space-y-1">
           <label for="name" class="text-gray-superlight text-sm sm:text-base">Name*</label>
-          <input type="text" v-model="store.tempUser.name" required />
+          <input type="text" autocomplete="off" v-model="store.tempUser.name" required />
         </div>
 
         <PhoneNumber />
 
         <div class="flex flex-col space-y-1">
           <label for="email" class="text-gray-superlight text-sm sm:text-base">Email*</label>
-          <input type="email" v-model="store.tempUser.email" required />
+          <input type="email" autocomplete="off" v-model="store.tempUser.email" required />
         </div>
 
         <!-- <div class="flex flex-col space-y-1">
@@ -37,7 +37,7 @@
 
         <div class="flex flex-col space-y-1">
           <label for="password" class="text-gray-superlight text-sm sm:text-base">New Password</label>
-          <input type="password" v-model="store.tempUser.password" class="p-3 border border-gray-300 rounded-md text-base" />
+          <input type="password" autocomplete="off" v-model="store.tempUser.password" class="p-3 border border-gray-300 rounded-md text-base" />
         </div>
 
         <button type="submit" class="btn">
@@ -66,7 +66,7 @@
   </Modal>
 </template>
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
 import { mainStore } from "@/stores/store"
 import Modal from "@/components/Modal.vue"
 import { user, auth } from "@/lib/methods"
@@ -114,4 +114,13 @@ async function handleLogout() {
     loading.value = false
   }
 }
+
+// Listen for escape key
+onMounted(() => {
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      store.popModal()
+    }
+  })
+})
 </script>

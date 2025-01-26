@@ -2,9 +2,30 @@ import { apiPost, apiGet } from "./utils"
 import { mainStore } from "../stores/store"
 
 export const startApp = async () => {
+  console.log("Starting app")
   await user.getUser()
   await friendships.getUserFriends()
   await transmissions.getTransmissions()
+
+  // Check for new friendships every 1 minute
+  setInterval(updater.checkFriendships, 1000 * 60 * 1)
+  // Check for new transmissions every 3 seconds
+  setInterval(updater.checkTransmissions, 1000 * 3)
+}
+
+export const updater = {
+  async checkTransmissions() {
+    console.log("Checking transmissions")
+    if (!mainStore().isPlaying && !mainStore().isRecording) {
+      await transmissions.getTransmissions()
+      await transmissions.playPendingTransmissions()
+    }
+  },
+  async checkFriendships() {
+    if (!mainStore().isPlaying && !mainStore().isRecording) {
+      await friendships.getUserFriends()
+    }
+  },
 }
 
 export const auth = {
@@ -122,6 +143,19 @@ export const transmissions = {
     const response = await apiGet("/transmissions")
     console.log(response)
     mainStore().transmissions = response.transmissions
+  },
+  async playPendingTransmissions() {
+    // Need to play any pending audio transmissions (waiting til each one is finished playing before playing the next one)
+    const pendingTransmissions = mainStore().transmissions.filter((t) => t.status === "pending")
+    console.log("pendingTransmissions", pendingTransmissions)
+    if (pendingTransmissions.length > 0) {
+      mainStore().isPlaying = true
+      for (const t of pendingTransmissions) {
+        await transmissions.playTransmission(t)
+        mainStore().transmissions = mainStore().transmissions.filter((trans) => trans.id !== t.id)
+      }
+      mainStore().isPlaying = false
+    }
   },
   async playTransmission(transmission) {
     try {

@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Talkiez",
+  "short_name": "Talkiez",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,8 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "theme_color": "#363636",
+  "background_color": "#363636",
+  "display": "fullscreen",
+  "orientation": "portrait"
 }

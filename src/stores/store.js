@@ -25,6 +25,8 @@ export const mainStore = defineStore("main", {
     friends: ref([]),
     selectedContact: ref(null),
     modals: ref([]),
+    isPlaying: ref(false),
+    isRecording: ref(false),
     transmissions: ref([]),
     micPermissionGranted: false,
   }),

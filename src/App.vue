@@ -7,10 +7,19 @@
 </template>
 <script setup>
 import { mainStore } from "./stores/store"
+import { onMounted } from "vue"
+import { startApp } from "./lib/methods"
 import ModalLogin from "./components/Modals/ModalLogin.vue"
 import Main from "./components/Screens/Main.vue"
 
 import Modals from "./components/Modals.vue"
 import "./index.css"
 const store = mainStore()
+
+// check if we're logged in and call startApp on mount
+onMounted(() => {
+  if (store.token) {
+    startApp()
+  }
+})
 </script>

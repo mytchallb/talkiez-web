@@ -19,7 +19,6 @@ import { AudioRecorder } from "../lib/audio"
 
 const store = mainStore()
 const recorder = ref(null)
-const isRecording = ref(false)
 const MAX_DURATION = 30
 const remainingTime = ref(MAX_DURATION)
 const recordingTimer = ref(null)
@@ -34,9 +33,9 @@ onMounted(() => {
 // Computed properties for better state management
 const canRecord = computed(() => store.selectedContact && recorder.value?.isInitialized)
 const buttonClasses = computed(() => ({
-  "bg-red-500": isRecording.value,
+  "bg-red-500": store.isRecording,
   "bg-gray-light text-white cursor-not-allowed": !canRecord.value,
-  "bg-primary text-black": !isRecording.value && canRecord.value,
+  "bg-primary text-black": !store.isRecording && canRecord.value,
 }))
 
 const buttonMessage = computed(() => {
@@ -44,12 +43,12 @@ const buttonMessage = computed(() => {
   if (store.user?.friends?.length === 0) return "Invite a friend to start"
   if (!store.selectedContact) return "Choose someone to talk to"
   if (!recorder.value?.isInitialized) return "Initializing..."
-  if (isRecording.value) return remainingTime.value
+  if (store.isRecording) return remainingTime.value
   return "Hold to Speak"
 })
 
 const startRecording = async () => {
-  if (!canRecord.value || isRecording.value) return
+  if (!canRecord.value || store.isRecording) return
 
   // Check/request microphone permission when user tries to record
   try {
@@ -64,7 +63,7 @@ const startRecording = async () => {
     }
 
     // If we have permission, start recording
-    isRecording.value = true
+    store.isRecording = true
     remainingTime.value = MAX_DURATION
 
     await recorder.value.startRecording()
@@ -89,9 +88,9 @@ const startRecording = async () => {
 }
 
 const stopRecording = async () => {
-  if (!isRecording.value) return
+  if (!store.isRecording) return
 
-  isRecording.value = false
+  store.isRecording = false
   clearInterval(recordingTimer.value)
   document.removeEventListener("mouseup", stopRecording)
   document.removeEventListener("touchend", stopRecording)
